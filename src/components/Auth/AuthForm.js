@@ -4,7 +4,7 @@ import classes from './AuthForm.module.css';
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
-  const [isRequest, setIsRequest] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const emailRef = useRef()
   const passwordRef = useRef()
 
@@ -14,12 +14,10 @@ const AuthForm = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault()
-    setIsRequest(true)
     const enteredEmail = emailRef.current.value;
     const enteredPassword = passwordRef.current.value;
-    console.log(enteredEmail)
-    console.log(enteredPassword)
 
+    setIsLoading(true)
     if (isLogin) {
 
     } else {
@@ -32,16 +30,19 @@ const AuthForm = () => {
         }),
         headers: { 'Content-Type': 'application/json' }
       }).then((res) => {
+        setIsLoading(false)
         if (res.ok) {
 
         } else {
           return res.json().then((data) => {
-            alert(data.message)
-            console.log(data)
+            let errorMessage = 'Authentication Failed'
+            if (data && data.error && data.error.message) {
+              errorMessage = data.error.message
+            }
+            alert(errorMessage)
           })
         }
       })
-      setIsRequest(false)
     }
   }
 
@@ -59,11 +60,12 @@ const AuthForm = () => {
           <input type='password' id='password' required ref={passwordRef} />
         </div>
         <div className={classes.actions}>
-          <button>
-            {isLogin && 'Login'}
-            {!isLogin && 'Sign Up'}
-            {isRequest && 'Sending request...'}
-          </button>
+          {!isLoading &&
+            <button>
+              {isLogin ? 'Login' : 'Sign Up'}
+            </button>
+          }
+          {isLoading && <p>Sending request...</p>}
           <button
             type='button'
             className={classes.toggle}
