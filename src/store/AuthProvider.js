@@ -1,17 +1,20 @@
 import React, { useState } from 'react'
 import AuthContext from './auth-context'
-import { useHistory } from 'react-router-dom'
 
 const AuthProvider = (props) => {
-    const [token, setToken] = useState(null)
+    const [token, setToken] = useState(() => {
+        return localStorage.getItem('token') || null
+    })
     const userIsLoggedIn = !!token
 
-    const login = (token) => {
+    const login = (token, expiredTime) => {
         setToken(token)
+        localStorage.setItem('token', token)
     }
 
     const logout = () => {
         setToken(null)
+        localStorage.removeItem('token')
     }
 
     const authValue = {
